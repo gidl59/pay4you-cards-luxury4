@@ -1,1 +1,46 @@
 
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card-container">
+
+    <div class="luxury-card">
+
+        <div class="gold-glow"></div>
+
+        <img src="{{ url_for('static', filename='img/apple-icon.png') }}" class="apple-icon">
+
+        <div class="photo-wrapper">
+            {% if agent.photo %}
+                <img src="{{ url_for('static', filename='uploads/' + agent.photo) }}" class="agent-photo">
+            {% else %}
+                <img src="{{ url_for('static', filename='img/avatar-default.png') }}" class="agent-photo">
+            {% endif %}
+        </div>
+
+        <h2 class="agent-name">{{ agent.name }}</h2>
+
+        <p class="info-line">📞 {{ agent.phone }}</p>
+        <p class="info-line">✉️ {{ agent.email }}</p>
+
+        {% if agent.address %}
+            <p class="info-line">📍 {{ agent.address }}</p>
+        {% endif %}
+
+        {% if agent.website %}
+            <a href="http://{{ agent.website }}" class="site-link">🌐 Visita Sito</a>
+        {% endif %}
+
+        <div class="button-row">
+            <a href="/card/{{ slug }}/vcf" class="btn-save">💾 Salva Contatto</a>
+            <a href="javascript:history.back()" class="btn-back">⬅ Indietro</a>
+        </div>
+
+        <div class="qr-wrapper">
+            <img src="data:image/png;base64,{{ qr_code }}" class="qr-img">
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
