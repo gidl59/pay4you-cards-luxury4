@@ -2,7 +2,5 @@ Flask==3.0.3
 gunicorn==21.2.0
 firebase-admin==6.5.0
 qrcode==7.4.2
-Pillow==9.0.0
+Pillow==10.2.0
 python-dotenv==1.0.1
-setuptools==68.2.2
-wheel==0.42.0
