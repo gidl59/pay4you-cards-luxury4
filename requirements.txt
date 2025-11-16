@@ -4,6 +4,3 @@ firebase-admin==6.4.0
 qrcode==7.4.2
 Pillow==10.4.0
 python-dotenv==1.0.1
-grpcio==1.60.0
-google-auth==2.22.0
-google-auth-oauthlib==1.0.0
