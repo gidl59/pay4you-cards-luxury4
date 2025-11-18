@@ -103,3 +103,16 @@ body {
 .qr-img {
     width: 130px;
 }
+/* --- Logo Pay4You in alto --- */
+.logo-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 16px 0 8px;
+}
+
+.logo {
+  max-width: 160px;   /* dimensione massima logo */
+  width: 50%;         /* occupa metà della larghezza dello schermo */
+  height: auto;
+}
