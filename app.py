@@ -1,198 +1,173 @@
 import os
-import json
-from functools import wraps
-from flask import (
-    Flask,
-    render_template,
-    request,
-    redirect,
-    url_for,
-    session,
-    abort,
-)
+from flask import Flask, render_template, request, redirect, url_for
 
-# -------------------------------------------------
-# CONFIGURAZIONE DI BASE
-# -------------------------------------------------
 app = Flask(__name__)
 
-# chiave per la sessione (puoi cambiarla)
-app.secret_key = os.environ.get("SECRET_KEY", "pay4you-secret")
+# Cartella per upload immagini profilo
+UPLOAD_FOLDER = "static/uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# file dove salviamo gli agenti (in JSON)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "static", "uploads")
-AGENTS_FILE = os.path.join(DATA_DIR, "agents.json")
-
-os.makedirs(DATA_DIR, exist_ok=True)
+# Memoria in RAM degli agenti (lista di dizionari)
+agents = []
 
 
-# -------------------------------------------------
-# FUNZIONI DI SUPPORTO
-# -------------------------------------------------
-def load_agents():
-    """Legge la lista agenti dal file JSON."""
-    if not os.path.exists(AGENTS_FILE):
-        return []
-    try:
-        with open(AGENTS_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return []
+# ---------------------------
+# ROTTE DI BASE
+# ---------------------------
 
-
-def save_agents(agents):
-    """Salva la lista agenti nel file JSON."""
-    with open(AGENTS_FILE, "w", encoding="utf-8") as f:
-        json.dump(agents, f, ensure_ascii=False, indent=2)
-
-
-def require_admin(view_func):
-    """Decorator per proteggere le pagine admin."""
-    @wraps(view_func)
-    def wrapper(*args, **kwargs):
-        if not session.get("is_admin"):
-            return redirect(url_for("login"))
-        return view_func(*args, **kwargs)
-    return wrapper
-
-
-# -------------------------------------------------
-# ROUTE PUBBLICHE
-# -------------------------------------------------
 @app.route("/")
-def index():
-    # home = redirect verso login oppure in futuro verso la card pubblica
+def home():
+    # reindirizza sempre alla pagina di login
     return redirect(url_for("login"))
 
 
-@app.route("/card/<int:agent_id>")
-def public_card(agent_id):
-    """Mostra la card pubblica dell'agente."""
-    agents = load_agents()
-    if agent_id < 0 or agent_id >= len(agents):
-        abort(404)
-    agent = agents[agent_id]
-    return render_template("card.html", agent=agent, agent_id=agent_id)
-
-
-# -------------------------------------------------
-# LOGIN SEMPLICE PER ADMIN
-# -------------------------------------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """
-    Login molto semplice.
-    Password presa da variabile di ambiente ADMIN_PASSWORD
-    oppure 'test' come default.
+    Login molto semplice con una sola password.
+    Password di default: "test"
+    Puoi cambiarla mettendo ADMIN_PASSWORD nelle variabili di ambiente di Render.
     """
-    error = None
     if request.method == "POST":
-        password = request.form.get("password", "")
-        real_password = os.environ.get("ADMIN_PASSWORD", "test")
-        if password == real_password:
-            session["is_admin"] = True
+        pwd = request.form.get("password", "")
+        correct = os.getenv("ADMIN_PASSWORD", "test")
+
+        if pwd == correct:
             return redirect(url_for("admin_list"))
         else:
-            error = "Password errata"
+            return render_template("login.html", error="Password errata")
 
-    return render_template("login.html", error=error)
-
-
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect(url_for("login"))
+    return render_template("login.html")
 
 
-# -------------------------------------------------
-# AREA ADMIN: ELENCO / NUOVO / MODIFICA
-# -------------------------------------------------
-@app.route("/admin/agents")
-@require_admin
+# ---------------------------
+# AREA ADMIN - ELENCO
+# ---------------------------
+
+@app.route("/admin")
 def admin_list():
-    """Elenco agenti (usa il template admin_list.html)."""
-    agents = load_agents()
+    """
+    Elenco di tutti gli agenti.
+    Usa il template admin_list.html
+    """
     return render_template("admin_list.html", agents=agents)
 
 
-@app.route("/admin/agents/new", methods=["GET", "POST"])
-@require_admin
+# ---------------------------
+# AREA ADMIN - NUOVO AGENTE
+# ---------------------------
+
+@app.route("/admin/agent/new", methods=["GET", "POST"])
 def admin_new_agent():
-    """Form per creare un nuovo agente (admin_agent_form.html)."""
+    """
+    Crea un nuovo agente.
+    GET  -> mostra il form vuoto
+    POST -> salva i dati e torna alla lista
+    """
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         phone = request.form.get("phone", "").strip()
+        whatsapp = request.form.get("whatsapp", "").strip()
         email = request.form.get("email", "").strip()
-        company = request.form.get("company", "").strip()
-        role = request.form.get("role", "").strip()
-        photo = request.form.get("photo", "").strip()  # per ora solo URL
+        gallery = request.form.get("gallery", "").strip()
 
-        agents = load_agents()
-        agents.append(
-            {
-                "name": name,
-                "phone": phone,
-                "email": email,
-                "company": company,
-                "role": role,
-                "photo": photo,
-            }
-        )
-        save_agents(agents)
+        # upload foto
+        photo_file = request.files.get("photo")
+        photo_path = None
+        if photo_file and photo_file.filename:
+            filename = photo_file.filename
+            save_path = os.path.join(UPLOAD_FOLDER, filename)
+            photo_file.save(save_path)
+            photo_path = save_path
+
+        agent = {
+            "name": name,
+            "phone": phone,
+            "whatsapp": whatsapp,
+            "email": email,
+            "gallery": gallery,
+            "photo": photo_path,
+        }
+        agents.append(agent)
+
         return redirect(url_for("admin_list"))
 
-    # GET: mostra il form vuoto
-    return render_template("admin_agent_form.html", agent=None)
+    # GET -> form vuoto
+    return render_template(
+        "admin_agent_form.html",
+        agent=None,
+        agent_id=None,
+    )
 
 
-@app.route("/admin/agents/<int:agent_id>/edit", methods=["GET", "POST"])
-@require_admin
-def admin_edit_agent(agent_id):
-    """Modifica di un agente esistente."""
-    agents = load_agents()
+# ---------------------------
+# AREA ADMIN - MODIFICA AGENTE
+# ---------------------------
+
+@app.route("/admin/agent/<int:agent_id>/edit", methods=["GET", "POST"])
+def admin_edit_agent(agent_id: int):
+    """
+    Modifica di un agente esistente (indice nella lista agents).
+    """
+    # Controllo rapido su indice
     if agent_id < 0 or agent_id >= len(agents):
-        abort(404)
+        return render_template("404.html"), 404
+
+    agent = agents[agent_id]
 
     if request.method == "POST":
-        name = request.form.get("name", "").strip()
-        phone = request.form.get("phone", "").strip()
-        email = request.form.get("email", "").strip()
-        company = request.form.get("company", "").strip()
-        role = request.form.get("role", "").strip()
-        photo = request.form.get("photo", "").strip()
+        agent["name"] = request.form.get("name", "").strip()
+        agent["phone"] = request.form.get("phone", "").strip()
+        agent["whatsapp"] = request.form.get("whatsapp", "").strip()
+        agent["email"] = request.form.get("email", "").strip()
+        agent["gallery"] = request.form.get("gallery", "").strip()
 
-        agents[agent_id].update(
-            {
-                "name": name,
-                "phone": phone,
-                "email": email,
-                "company": company,
-                "role": role,
-                "photo": photo,
-            }
-        )
-        save_agents(agents)
+        photo_file = request.files.get("photo")
+        if photo_file and photo_file.filename:
+            filename = photo_file.filename
+            save_path = os.path.join(UPLOAD_FOLDER, filename)
+            photo_file.save(save_path)
+            agent["photo"] = save_path
+
         return redirect(url_for("admin_list"))
 
-    # GET: mostra il form precompilato
+    # GET -> mostra form con dati precompilati
+    return render_template(
+        "admin_agent_form.html",
+        agent=agent,
+        agent_id=agent_id,
+    )
+
+
+# ---------------------------
+# CARD PUBBLICA
+# ---------------------------
+
+@app.route("/card/<int:agent_id>")
+def public_card(agent_id: int):
+    """
+    Card pubblica di un agente specifico.
+    """
+    if agent_id < 0 or agent_id >= len(agents):
+        return render_template("404.html"), 404
+
     agent = agents[agent_id]
-    return render_template("admin_agent_form.html", agent=agent, agent_id=agent_id)
+    return render_template("card.html", agent=agent)
 
 
-# -------------------------------------------------
-# ERROR HANDLER 404
-# -------------------------------------------------
+# ---------------------------
+# ERRORE 404 PERSONALIZZATO
+# ---------------------------
+
 @app.errorhandler(404)
-def page_not_found(e):
+def not_found(e):
     return render_template("404.html"), 404
 
 
-# -------------------------------------------------
-# AVVIO LOCALE (su Render gira con gunicorn app:app)
-# -------------------------------------------------
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+# ---------------------------
+# AVVIO LOCALE
+# ---------------------------
 
-Inviato da iPhone
+if __name__ == "__main__":
+    # Per sviluppo locale; su Render viene usato gunicorn app:app
+    app.run(host="0.0.0.0", port=5000, debug=T
