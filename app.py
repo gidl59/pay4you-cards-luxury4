@@ -1,131 +1,74 @@
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 import os
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, abort
-from werkzeug.utils import secure_filename
-import json
-import qrcode
-from io import BytesIO
-import base64
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
 
-# =============== SETTINGS ===============
-ADMIN_USER = os.getenv("ADMIN_USER", "admin")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "test")
+########################################
+# HOME → REDIRECT AL LOGIN
+########################################
+@app.route('/')
+def home():
+    return redirect('/login')
 
-DATA_FILE = "data.json"
-UPLOAD_FOLDER = "static/uploads"
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
-
-# =============== LOAD / SAVE JSON ===============
-def load_data():
-    if not os.path.exists(DATA_FILE):
-        return {}
-    with open(DATA_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-def save_data(data):
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4)
-
-# =============== LOGIN ===============
-@app.route("/login", methods=["GET", "POST"])
+########################################
+# PAGINA LOGIN
+########################################
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == "POST":
-        if request.form["username"] == ADMIN_USER and request.form["password"] == ADMIN_PASSWORD:
-            return redirect(url_for("admin_list"))
-        return render_template("login.html", error="Credenziali errate")
+    if request.method == 'POST':
+        password = request.form.get('password')
+        if password == "test":  # PUOI CAMBIARLA
+            return redirect('/dashboard')
+        else:
+            return render_template("login.html", error="Password errata")
     return render_template("login.html")
 
-# =============== ADMIN – LISTA AGENTI ===============
-@app.route("/admin")
-def admin_list():
-    data = load_data()
-    return render_template("admin_list.html", agents=data)
 
-# =============== ADMIN – CREA/MODIFICA AGENTE ===============
-@app.route("/admin/edit/<slug>", methods=["GET", "POST"])
-@app.route("/admin/new", methods=["GET", "POST"])
-def admin_edit(slug=None):
-    data = load_data()
+########################################
+# DASHBOARD (LISTA AGENTI)
+########################################
+@app.route('/dashboard')
+def dashboard():
+    # Esempio agenti – poi li prenderemo da JSON o Firebase
+    agenti = [
+        {"id": 1, "nome": "Mario Rossi"},
+        {"id": 2, "nome": "Giuseppe Di Lisio"},
+        {"id": 3, "nome": "Laura Bianchi"}
+    ]
+    return render_template("dashboard.html", agenti=agenti)
 
-    agent = data.get(slug, {}) if slug else {}
 
-    if request.method == "POST":
-        name = request.form["name"]
-        phone = request.form["phone"]
-        email = request.form["email"]
-        address = request.form["address"]
-        website = request.form["website"]
-
-        new_slug = name.lower().replace(" ", "-")
-
-        filename = agent.get("photo", None)
-        if "photo" in request.files and request.files["photo"].filename != "":
-            photo = request.files["photo"]
-            filename = secure_filename(new_slug + ".jpg")
-            photo.save(os.path.join(UPLOAD_FOLDER, filename))
-
-        data[new_slug] = {
-            "name": name,
-            "phone": phone,
-            "email": email,
-            "address": address,
-            "website": website,
-            "photo": filename
-        }
-
-        save_data(data)
-
-        return redirect(url_for("admin_list"))
-
-    return render_template("admin_edit.html", agent=agent, slug=slug)
-
-# =============== CARD – PUBBLICA ===============
-@app.route("/card/<slug>")
-def card(slug):
-    data = load_data()
-    agent = data.get(slug)
-
-    if not agent:
-        return render_template("404.html"), 404
-
-    # QR CODE della stessa pagina
-    qr = qrcode.make(request.url)
-    buffer = BytesIO()
-    qr.save(buffer, format="PNG")
-    qr_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
-
-    return render_template(
-        "card.html",
-        agent=agent,
-        slug=slug,
-        qr_code=qr_base64
-    )
-
-# =============== VCF – SALVA CONTATTO ===============
-@app.route("/card/<slug>/vcf")
-def vcf(slug):
-    data = load_data()
-    agent = data.get(slug)
-
-    if not agent:
-        abort(404)
-
-    vcf_text = f"""BEGIN:VCARD
-VERSION:3.0
-FN:{agent['name']}
-TEL:{agent['phone']}
-EMAIL:{agent['email']}
-END:VCARD"""
-
-    return vcf_text, 200, {
-        "Content-Type": "text/vcard",
-        "Content-Disposition": f"attachment; filename={slug}.vcf"
+########################################
+# CARD AGENTE
+########################################
+@app.route('/agente/<int:id>')
+def agente(id):
+    # Dati di esempio → poi collego al tuo database
+    agente = {
+        "id": id,
+        "nome": "Nome Cognome",
+        "telefono": "+39 333 0000000",
+        "email": "email@example.com",
+        "foto": "/static/img/default.jpg"
     }
+    return render_template("card.html", agente=agente)
 
-# =============== START ===============
+
+########################################
+# DOWNLOAD VCF (BIGLIETTO DA VISITA)
+########################################
+@app.route('/download_vcf/<int:id>')
+def download_vcf(id):
+    file_path = os.path.join("static", "vcf", f"agente_{id}.vcf")
+    if os.path.exists(file_path):
+        return send_from_directory("static/vcf", f"agente_{id}.vcf", as_attachment=True)
+    return "VCF non trovato", 404
+
+
+########################################
+# SERVE PER FAR PARTIRE CORRETTAMENTE SU RENDER
+########################################
 if __name__ == "__main__":
-    app.run()
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
