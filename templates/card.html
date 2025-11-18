@@ -1,222 +1,56 @@
 {% extends "base.html" %}
 
-{% block title %}
-  {% if agent is defined and agent.name %}
-    {{ agent.name }} - Pay4You Card
-  {% else %}
-    Pay4You Card
-  {% endif %}
-{% endblock %}
-
 {% block content %}
-<div class="card-page">
+<div class="text-center">
+  <!-- Foto profilo -->
+  <div class="mb-3">
+    {% if agent.photo %}
+      <img src="{{ url_for('static', filename=agent.photo) }}"
+           class="rounded-circle border border-warning"
+           style="width:140px;height:140px;object-fit:cover;">
+    {% else %}
+      <img src="{{ url_for('static', filename='img/avatar-default.png') }}"
+           class="rounded-circle border border-warning"
+           style="width:140px;height:140px;object-fit:cover;">
+    {% endif %}
+  </div>
 
-  <!-- HEADER CON LOGO -->
-  <header class="card-header">
-    <div class="logo-wrapper">
-      <img
-        src="{{ url_for('static', filename='img/pay4you-logo-lux.png') }}"
-        alt="Pay4You"
-        class="logo"
-      >
-    </div>
-  </header>
+  <h3 class="mb-1">{{ agent.name }}</h3>
+  <p class="text-warning mb-3">Consulente Pagamenti &middot; Pay4You</p>
 
-  <!-- BLOCCO HERO CON FOTO E DATI PRINCIPALI -->
-  <section class="hero">
-    <div class="avatar-wrapper">
-      {% if agent is defined and agent.photo %}
-        <img
-          src="{{ url_for('uploaded_file', filename=agent.photo) }}"
-          alt="{{ agent.name }}"
-          class="avatar"
-        >
-      {% else %}
-        <img
-          src="{{ url_for('static', filename='img/avatar-default.png') }}"
-          alt="Avatar"
-          class="avatar"
-        >
-      {% endif %}
-    </div>
-
-    <div class="hero-text">
-      <h1 class="agent-name">
-        {% if agent is defined and agent.name %}
-          {{ agent.name }}
-        {% else %}
-          Nome Cognome
-        {% endif %}
-      </h1>
-
-      <p class="agent-role">
-        {% if agent is defined and agent.role %}
-          {{ agent.role }}
-        {% else %}
-          Consulente Pagamenti & POS
-        {% endif %}
-      </p>
-
-      <p class="agent-company">
-        {% if agent is defined and agent.company %}
-          {{ agent.company }}
-        {% else %}
-          Pay4You Group
-        {% endif %}
-      </p>
-    </div>
-  </section>
-
-  <!-- CONTATTI PRINCIPALI -->
-  <section class="contacts">
-    <h2 class="section-title">Contatti</h2>
-    <div class="contact-list">
-
-      <div class="contact-item">
-        <span class="contact-label">Telefono</span>
-        <a
-          href="tel:{% if agent is defined and agent.phone %}{{ agent.phone }}{% endif %}"
-          class="contact-value"
-        >
-          {% if agent is defined and agent.phone %}
-            {{ agent.phone }}
-          {% else %}
-            +39 333 0000000
-          {% endif %}
-        </a>
-      </div>
-
-      <div class="contact-item">
-        <span class="contact-label">WhatsApp</span>
-        {% if agent is defined and agent.whatsapp %}
-          <a
-            href="https://wa.me/{{ agent.whatsapp | replace('+', '') }}"
-            class="contact-value"
-            target="_blank"
-          >
-            Chat WhatsApp
-          </a>
-        {% else %}
-          <span class="contact-value disabled">Non disponibile</span>
-        {% endif %}
-      </div>
-
-      <div class="contact-item">
-        <span class="contact-label">Email</span>
-        <a
-          href="mailto:{% if agent is defined and agent.email %}{{ agent.email }}{% endif %}"
-          class="contact-value"
-        >
-          {% if agent is defined and agent.email %}
-            {{ agent.email }}
-          {% else %}
-            nome.cognome@email.it
-          {% endif %}
-        </a>
-      </div>
-
-      <div class="contact-item">
-        <span class="contact-label">Sito web</span>
-        {% if agent is defined and agent.website %}
-          <a href="{{ agent.website }}" class="contact-value" target="_blank">
-            {{ agent.website }}
-          </a>
-        {% else %}
-          <span class="contact-value disabled">Non disponibile</span>
-        {% endif %}
-      </div>
-
-    </div>
-  </section>
-
-  <!-- SOCIAL -->
-  <section class="social">
-    <h2 class="section-title">Social</h2>
-    <div class="social-buttons">
-
-      {% if agent is defined and agent.facebook %}
-        <a href="{{ agent.facebook }}" target="_blank" class="social-btn">Facebook</a>
-      {% endif %}
-
-      {% if agent is defined and agent.instagram %}
-        <a href="{{ agent.instagram }}" target="_blank" class="social-btn">Instagram</a>
-      {% endif %}
-
-      {% if agent is defined and agent.linkedin %}
-        <a href="{{ agent.linkedin }}" target="_blank" class="social-btn">LinkedIn</a>
-      {% endif %}
-
-      {% if (agent is not defined) or (not agent.facebook and not agent.instagram and not agent.linkedin) %}
-        <p class="empty-note">Nessun social collegato.</p>
-      {% endif %}
-
-    </div>
-  </section>
-
-  <!-- AZIONI: SALVA CONTATTO, PDF, QR -->
-  <section class="actions">
-    <h2 class="section-title">Azioni rapide</h2>
-    <div class="action-buttons">
-
-      <!-- vCard -->
-      <a href="{{ url_for('download_vcard', agent_id=agent.id) if agent is defined and agent.id is defined else '#' }}"
-         class="action-btn">
-        Salva contatto (vCard)
+  <div class="d-grid gap-2 mb-3">
+    {% if agent.phone %}
+      <a href="tel:{{ agent.phone }}" class="btn btn-outline-light btn-sm">
+        📞 Chiama
       </a>
+    {% endif %}
+    {% if agent.whatsapp %}
+      <a href="https://wa.me/{{ agent.whatsapp|replace('+','') }}"
+         class="btn btn-success btn-sm" target="_blank">
+        💬 WhatsApp
+      </a>
+    {% endif %}
+    {% if agent.email %}
+      <a href="mailto:{{ agent.email }}" class="btn btn-outline-warning btn-sm">
+        ✉️ Email
+      </a>
+    {% endif %}
+  </div>
 
-      <!-- PDF 1–4 -->
-      {% if agent is defined and agent.pdf1 %}
-        <a href="{{ url_for('uploaded_file', filename=agent.pdf1) }}" target="_blank" class="action-btn">
-          Brochure 1
-        </a>
-      {% endif %}
-      {% if agent is defined and agent.pdf2 %}
-        <a href="{{ url_for('uploaded_file', filename=agent.pdf2) }}" target="_blank" class="action-btn">
-          Brochure 2
-        </a>
-      {% endif %}
-      {% if agent is defined and agent.pdf3 %}
-        <a href="{{ url_for('uploaded_file', filename=agent.pdf3) }}" target="_blank" class="action-btn">
-          Brochure 3
-        </a>
-      {% endif %}
-      {% if agent is defined and agent.pdf4 %}
-        <a href="{{ url_for('uploaded_file', filename=agent.pdf4) }}" target="_blank" class="action-btn">
-          Brochure 4
-        </a>
-      {% endif %}
-
-      {% if agent is not defined or (not agent.pdf1 and not agent.pdf2 and not agent.pdf3 and not agent.pdf4) %}
-        <p class="empty-note">Nessun documento caricato.</p>
-      {% endif %}
+  {% if agent.gallery %}
+    <hr class="border-secondary">
+    <h6 class="mb-2 text-uppercase text-muted">Galleria</h6>
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+      {% for line in agent.gallery.splitlines() %}
+        {% set url = line.strip() %}
+        {% if url %}
+          <a href="{{ url }}" target="_blank"
+             class="badge bg-secondary text-decoration-none">
+            Foto {{ loop.index }}
+          </a>
+        {% endif %}
+      {% endfor %}
     </div>
-  </section>
-
-  <!-- GALLERIA FOTO -->
-  {% if agent is defined and (agent.gallery1 or agent.gallery2 or agent.gallery3 or agent.gallery4) %}
-    <section class="gallery">
-      <h2 class="section-title">Galleria</h2>
-      <div class="gallery-grid">
-        {% if agent.gallery1 %}
-          <img src="{{ url_for('uploaded_file', filename=agent.gallery1) }}" alt="Foto 1" class="gallery-img">
-        {% endif %}
-        {% if agent.gallery2 %}
-          <img src="{{ url_for('uploaded_file', filename=agent.gallery2) }}" alt="Foto 2" class="gallery-img">
-        {% endif %}
-        {% if agent.gallery3 %}
-          <img src="{{ url_for('uploaded_file', filename=agent.gallery3) }}" alt="Foto 3" class="gallery-img">
-        {% endif %}
-        {% if agent.gallery4 %}
-          <img src="{{ url_for('uploaded_file', filename=agent.gallery4) }}" alt="Foto 4" class="gallery-img">
-        {% endif %}
-      </div>
-    </section>
   {% endif %}
-
-  <!-- FOOTER -->
-  <footer class="card-footer">
-    <p>Pay4You Cards Luxury • Digital Business Card</p>
-  </footer>
-
 </div>
 {% endblock %}
