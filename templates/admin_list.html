@@ -1,1 +1,83 @@
+{% extends "base.html" %}
 
+{% block title %}Dashboard agenti{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+    <div>
+      <h2 style="margin:0 0 4px;">Agenti Pay4You</h2>
+      <p style="margin:0;font-size:13px;opacity:0.8;">
+        Gestisci card digitali, QR code e contatti.
+      </p>
+    </div>
+    <a class="btn primary" href="{{ url_for('admin_new') }}">+ Nuovo agente</a>
+  </div>
+
+  {% if agents and agents|length > 0 %}
+    <div class="card glass" style="padding:0;overflow:hidden;">
+      <table class="table" style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead style="background:rgba(255,255,255,0.03);">
+          <tr>
+            <th style="text-align:left;padding:10px 12px;">Nome</th>
+            <th style="text-align:left;padding:10px 12px;">Slug / Link</th>
+            <th style="text-align:left;padding:10px 12px;">Telefono</th>
+            <th style="text-align:left;padding:10px 12px;">Email</th>
+            <th style="text-align:right;padding:10px 12px;">Azioni</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for a in agents %}
+          <tr style="border-top:1px solid rgba(255,255,255,0.06);">
+            <td style="padding:10px 12px;">{{ a.name }}</td>
+            <td style="padding:10px 12px;">
+              <a href="{{ url_for('public_card', slug=a.slug) }}" target="_blank">
+                /{{ a.slug }}
+              </a>
+            </td>
+            <td style="padding:10px 12px;">
+              {{ a.phone or "-" }}
+            </td>
+            <td style="padding:10px 12px;">
+              {{ a.email or "-" }}
+            </td>
+            <td style="padding:8px 12px;text-align:right;white-space:nowrap;">
+              <a class="btn" href="{{ url_for('public_card', slug=a.slug) }}" target="_blank"
+                 style="font-size:11px;padding:5px 8px;margin-right:4px;">
+                Vedi card
+              </a>
+              <a class="btn" href="{{ url_for('admin_edit', slug=a.slug) }}"
+                 style="font-size:11px;padding:5px 8px;margin-right:4px;">
+                Modifica
+              </a>
+              <form method="post"
+                    action="{{ url_for('admin_delete', slug=a.slug) }}"
+                    style="display:inline-block;"
+                    onsubmit="return confirm('Eliminare {{ a.name }}?');">
+                <button type="submit" class="btn danger"
+                        style="font-size:11px;padding:5px 8px;">
+                  Elimina
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="card glass" style="padding:16px 14px;">
+      <p style="margin:0 0 8px;font-size:14px;">Nessun agente presente.</p>
+      <p style="margin:0;font-size:13px;opacity:0.8;">
+        Clicca su <strong>“+ Nuovo agente”</strong> per creare la prima card digitale.
+      </p>
+    </div>
+  {% endif %}
+
+  <div style="margin-top:16px;font-size:11px;opacity:0.6;">
+    <a href="{{ url_for('logout') }}">Esci</a>
+  </div>
+
+</div>
+{% endblock %}
