@@ -1,152 +1,109 @@
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 import os
 import json
-from flask import Flask, render_template, request, redirect, url_for
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# Percorsi base ---------------------------------------------------------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
-DATA_FILE = os.path.join(BASE_DIR, "agents.json")
-
+# CARTELLE STATICHE ----------------------------------------------------------
+UPLOAD_FOLDER = "static/uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-# Crea cartella uploads e file json se non esistono ---------------------------
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+AGENTS_FILE = "agents.json"
 
-if not os.path.exists(DATA_FILE):
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump([], f)
-
-
+# FUNZIONI UTILI -------------------------------------------------------------
 def load_agents():
-    """Legge la lista agenti dal file JSON."""
-    if not os.path.exists(DATA_FILE):
+    if not os.path.exists(AGENTS_FILE):
         return []
-    with open(DATA_FILE, "r", encoding="utf-8") as f:
-        try:
-            return json.load(f)
-        except json.JSONDecodeError:
-            return []
-
+    with open(AGENTS_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 def save_agents(agents):
-    """Salva la lista agenti nel file JSON."""
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(agents, f, ensure_ascii=False, indent=4)
+    with open(AGENTS_FILE, "w", encoding="utf-8") as f:
+        json.dump(agents, f, indent=4, ensure_ascii=False)
 
-
-# LOGIN (home) ----------------------------------------------------------------
-@app.route("/", methods=["GET", "POST"])
+# ROTTA LOGIN ---------------------------------------------------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    error = None
-
     if request.method == "POST":
-        password = request.form.get("password", "")
+        user = request.form.get("username")
+        pwd = request.form.get("password")
 
-        # password amministratore (per ora fissa)
-        if password == "test":
+        if user == "admin" and pwd == "test":
             return redirect(url_for("admin_list"))
-        else:
-            error = "Password errata"
 
-    return render_template("login.html", error=error)
+        return render_template("login.html", error="Credenziali errate")
 
+    return render_template("login.html")
 
 # LISTA AGENTI ---------------------------------------------------------------
-@app.route("/admin/agents")
+@app.route("/admin")
 def admin_list():
     agents = load_agents()
     return render_template("admin_list.html", agents=agents)
 
-
-# NUOVO AGENTE ---------------------------------------------------------------
-@app.route("/admin/agents/new")
+# FORM NUOVO AGENTE ----------------------------------------------------------
+@app.route("/admin/new", methods=["GET", "POST"])
 def admin_new_agent():
-    return render_template("admin_agent_form.html", agent=None, agent_id=None)
+    if request.method == "POST":
+        agents = load_agents()
 
+        name = request.form.get("name")
+        phone = request.form.get("phone")
+        email = request.form.get("email")
+        role = request.form.get("role")
 
-# MODIFICA AGENTE ------------------------------------------------------------
-@app.route("/admin/agents/<int:agent_id>/edit")
-def admin_edit_agent(agent_id):
+        photo_file = request.files.get("photo")
+        photo_filename = None
+
+        if photo_file and photo_file.filename:
+            photo_filename = secure_filename(photo_file.filename)
+            photo_path = os.path.join(app.config["UPLOAD_FOLDER"], photo_filename)
+            photo_file.save(photo_path)
+
+        new_agent = {
+            "id": len(agents) + 1,
+            "name": name,
+            "phone": phone,
+            "email": email,
+            "role": role,
+            "photo": photo_filename
+        }
+
+        agents.append(new_agent)
+        save_agents(agents)
+
+        return redirect(url_for("admin_list"))
+
+    return render_template("admin_agent_form.html")
+
+# MOSTRA CARD AGENTE ---------------------------------------------------------
+@app.route("/agent/<int:agent_id>")
+def show_agent(agent_id):
     agents = load_agents()
-    if agent_id < 0 or agent_id >= len(agents):
+    agent = next((a for a in agents if a["id"] == agent_id), None)
+
+    if not agent:
         return render_template("404.html"), 404
 
-    agent = agents[agent_id]
-    return render_template("admin_agent_form.html", agent=agent, agent_id=agent_id)
+    return render_template("card.html", agent=agent)
 
+# ROUTE PER IMMAGINI CARICATE ------------------------------------------------
+@app.route("/uploads/<filename>")
+def uploaded_file(filename):
+    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
-# SALVA (NUOVO O MODIFICA) ---------------------------------------------------
-@app.route("/admin/agents/save", methods=["POST"])
-def admin_save_agent():
-    agents = load_agents()
+# HOME REDIRECT ---------------------------------------------------------------
+@app.route("/")
+def home():
+    return redirect(url_for("login"))
 
-    # se c'è agent_id facciamo modifica, altrimenti nuovo
-    agent_id_raw = request.form.get("agent_id")
-    agent_id = int(agent_id_raw) if agent_id_raw not in (None, "", "None") else None
-
-    name = request.form.get("name", "").strip()
-    phone = request.form.get("phone", "").strip()
-    whatsapp = request.form.get("whatsapp", "").strip()
-    email = request.form.get("email", "").strip()
-    gallery = request.form.get("gallery", "").strip()
-
-    # Upload foto -------------------------------------------------------------
-    photo = request.files.get("photo")
-    photo_path = None
-
-    if photo and photo.filename:
-        filename = secure_filename(photo.filename)
-        abs_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-        photo.save(abs_path)
-        # percorso relativo usato in url_for('static', filename=...)
-        photo_path = f"uploads/{filename}"
-
-    # Se stiamo modificando, partiamo dai dati esistenti
-    if agent_id is not None and 0 <= agent_id < len(agents):
-        agent = agents[agent_id]
-    else:
-        agent = {}
-
-    agent["name"] = name
-    agent["phone"] = phone
-    agent["whatsapp"] = whatsapp
-    agent["email"] = email
-    agent["gallery"] = gallery
-
-    if photo_path:
-        agent["photo"] = photo_path
-
-    if agent_id is None:
-        agents.append(agent)
-    else:
-        agents[agent_id] = agent
-
-    save_agents(agents)
-
-    return redirect(url_for("admin_list"))
-
-
-# CARD PUBBLICA --------------------------------------------------------------
-@app.route("/card/<int:agent_id>")
-def public_card(agent_id):
-    agents = load_agents()
-    if agent_id < 0 or agent_id >= len(agents):
-        return render_template("404.html"), 404
-
-    agent = agents[agent_id]
-    return render_template("card.html", agent=agent, agent_id=agent_id)
-
-
-# 404 PERSONALIZZATA ---------------------------------------------------------
+# ERRORE 404 ---------------------------------------------------------------
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("404.html"), 404
 
-
-# Per esecuzione locale ------------------------------------------------------
+# AVVIO LOCALE ---------------------------------------------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=100
+    app.run(host="0.0.0.0", port=10000, d
