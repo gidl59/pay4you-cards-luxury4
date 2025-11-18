@@ -1,1 +1,156 @@
+{% extends "base.html" %}
 
+{% block title %}
+  {% if agent %}Modifica agente{% else %}Nuovo agente{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card glass" style="max-width:720px;margin:26px auto;padding:20px 18px;">
+  <h2 style="margin-top:0;margin-bottom:8px;">
+    {% if agent %}Modifica agente{% else %}Nuovo agente{% endif %}
+  </h2>
+  <p style="margin:0 0 14px;font-size:13px;opacity:0.8;">
+    Compila i dati principali per la card digitale.
+  </p>
+
+  {% if error %}
+    <div style="background:rgba(255,0,0,0.08);border:1px solid rgba(255,0,0,0.4);
+                color:#ffdddd;padding:8px 10px;border-radius:8px;margin-bottom:12px;
+                font-size:13px;">
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <form method="post">
+    <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:14px;">
+
+      <!-- Colonna sinistra -->
+      <div>
+        {% if not agent %}
+          <label style="font-size:12px;display:block;margin-bottom:4px;">
+            Slug (indirizzo card) *
+          </label>
+          <input name="slug" required
+                 placeholder="es. giuseppe"
+                 style="width:100%;padding:8px 9px;border-radius:8px;border:none;
+                        margin-bottom:12px;background:rgba(255,255,255,0.06);color:#fff;">
+        {% else %}
+          <div style="font-size:12px;margin-bottom:10px;opacity:0.8;">
+            Slug: <code>/{{ agent.slug }}</code>
+          </div>
+        {% endif %}
+
+        <label style="font-size:12px;display:block;margin-bottom:4px;">
+          Nome completo *
+        </label>
+        <input name="name" required
+               value="{{ agent.name if agent else '' }}"
+               placeholder="Nome Cognome"
+               style="width:100%;padding:8px 9px;border-radius:8px;border:none;
+                      margin-bottom:10px;background:rgba(255,255,255,0.06);color:#fff;">
+
+        <label style="font-size:12px;display:block;margin-bottom:4px;">
+          Ruolo / Posizione
+        </label>
+        <input name="role"
+               value="{{ agent.role if agent else '' }}"
+               placeholder="Es. Area Manager Centro Italia"
+               style="width:100%;padding:8px 9px;border-radius:8px;border:none;
+                      margin-bottom:10px;background:rgba(255,255,255,0.06);color:#fff;">
+
+        <label style="font-size:12px;display:block;margin-bottom:4px;">
+          Azienda
+        </label>
+        <input name="company"
+               value="{{ agent.company if agent else '' }}"
+               placeholder="Es. Pay4You"
+               style="width:100%;padding:8px 9px;border-radius:8px;border:none;
+                      margin-bottom:10px;background:rgba(255,255,255,0.06);color:#fff;">
+      </div>
+
+      <!-- Colonna destra -->
+      <div>
+        <label style="font-size:12px;display:block;margin-bottom:4px;">
+          Telefono (mobile)
+        </label>
+        <input name="phone"
+               value="{{ agent.phone if agent else '' }}"
+               placeholder="+39 333 0000000"
+               style="width:100%;padding:8px 9px;border-radius:8px;border:none;
+                      margin-bottom:10px;background:rgba(255,255,255,0.06);color:#fff;">
+
+        <label style="font-size:12px;display:block;margin-bottom:4px;">
+          WhatsApp (solo numeri)
+        </label>
+        <input name="whatsapp"
+               value="{{ agent.whatsapp if agent else '' }}"
+               placeholder="es. 393339999999"
+               style="width:100%;padding:8px 9px;border-radius:8px;border:none;
+                      margin-bottom:10px;background:rgba(255,255,255,0.06);color:#fff;">
+
+        <label style="font-size:12px;display:block;margin-bottom:4px;">
+          Email
+        </label>
+        <input name="email"
+               value="{{ agent.email if agent else '' }}"
+               placeholder="nome.cognome@email.it"
+               style="width:100%;padding:8px 9px;border-radius:8px;border:none;
+                      margin-bottom:10px;background:rgba(255,255,255,0.06);color:#fff;">
+
+        <label style="font-size:12px;display:block;margin-bottom:4px;">
+          Sito web
+        </label>
+        <input name="website"
+               value="{{ agent.website if agent else '' }}"
+               placeholder="https://www.sito.it"
+               style="width:100%;padding:8px 9px;border-radius:8px;border:none;
+                      margin-bottom:10px;background:rgba(255,255,255,0.06);color:#fff;">
+      </div>
+    </div>
+
+    <!-- Social sotto -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;">
+      <div>
+        <label style="font-size:12px;display:block;margin-bottom:4px;">
+          Facebook (URL)
+        </label>
+        <input name="facebook"
+               value="{{ agent.facebook if agent else '' }}"
+               placeholder="https://facebook.com/..."
+               style="width:100%;padding:8px 9px;border-radius:8px;border:none;
+                      background:rgba(255,255,255,0.06);color:#fff;">
+      </div>
+      <div>
+        <label style="font-size:12px;display:block;margin-bottom:4px;">
+          Instagram (URL)
+        </label>
+        <input name="instagram"
+               value="{{ agent.instagram if agent else '' }}"
+               placeholder="https://instagram.com/..."
+               style="width:100%;padding:8px 9px;border-radius:8px;border:none;
+                      background:rgba(255,255,255,0.06);color:#fff;">
+      </div>
+      <div>
+        <label style="font-size:12px;display:block;margin-bottom:4px;">
+          LinkedIn (URL)
+        </label>
+        <input name="linkedin"
+               value="{{ agent.linkedin if agent else '' }}"
+               placeholder="https://linkedin.com/in/..."
+               style="width:100%;padding:8px 9px;border-radius:8px;border:none;
+                      background:rgba(255,255,255,0.06);color:#fff;">
+      </div>
+    </div>
+
+    <div style="margin-top:18px;display:flex;justify-content:space-between;gap:10px;">
+      <a href="{{ url_for('admin_home') }}" class="btn"
+         style="flex:1;text-align:center;">
+        Annulla
+      </a>
+      <button type="submit" class="btn primary" style="flex:1;">
+        Salva
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
