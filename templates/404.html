@@ -1,1 +1,18 @@
+{% extends "base.html" %}
 
+{% block title %}Pagina non trovata{% endblock %}
+
+{% block content %}
+<div class="card glass" style="max-width:480px;margin:40px auto;padding:26px 22px;text-align:center;">
+  <h2 style="margin-top:0;margin-bottom:8px;">Pagina non trovata</h2>
+  <p style="margin:0 0 10px;font-size:14px;opacity:0.8;">
+    La card richiesta non esiste o lo slug è errato.
+  </p>
+  <p style="margin:0 0 18px;font-size:13px;opacity:0.7;">
+    Verifica il link oppure torna alla card principale.
+  </p>
+  <a href="{{ url_for('public_home') }}" class="btn primary">
+    Torna alla home
+  </a>
+</div>
+{% endblock %}
