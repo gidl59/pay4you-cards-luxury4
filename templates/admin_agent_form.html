@@ -6,9 +6,14 @@
 </h4>
 
 <form method="post"
-      action="{{ url_for('admin_save_agent') }}"
-      enctype="multipart/form-data">
+      enctype="multipart/form-data"
+      action="{% if agent and agent_id is not none %}
+                 {{ url_for('admin_edit_agent', agent_id=agent_id) }}
+               {% else %}
+                 {{ url_for('admin_new_agent') }}
+               {% endif %}">
 
+  {# hidden per sicurezza, ma non indispensabile #}
   <input type="hidden" name="agent_id"
          value="{% if agent_id is not none %}{{ agent_id }}{% endif %}">
 
@@ -39,15 +44,14 @@
   <div class="mb-3">
     <label class="form-label">Galleria foto (URL separati da riga)</label>
     <textarea name="gallery" class="form-control" rows="3"
-              placeholder="https://...">
-{{ agent.gallery if agent else '' }}</textarea>
+              placeholder="https://...">{% if agent and agent.gallery %}{{ agent.gallery }}{% endif %}</textarea>
   </div>
 
   <div class="mb-3">
     <label class="form-label">Foto profilo (PNG/JPG)</label>
     <input type="file" name="photo" class="form-control">
     {% if agent and agent.photo %}
-      <small class="text-muted">
+      <small class="text-muted d-block mt-1">
         Attuale: <code>{{ agent.photo }}</code>
       </small>
     {% endif %}
@@ -63,3 +67,5 @@
   </div>
 </form>
 {% endblock %}
+
+Inviato da iPhone
