@@ -1,1 +1,35 @@
 
+{% extends "base.html" %}
+
+{% block title %}Login amministratore{% endblock %}
+
+{% block content %}
+<div class="card glass" style="max-width:420px;margin:40px auto;padding:24px 20px;">
+  <h2 style="margin-top:0;margin-bottom:12px;">Accesso amministratore</h2>
+  <p style="margin-top:0;margin-bottom:18px;font-size:14px;opacity:0.8;">
+    Inserisci la password per accedere alla gestione delle card Pay4You.
+  </p>
+
+  {% if error %}
+    <div style="background:rgba(255,0,0,0.08);border:1px solid rgba(255,0,0,0.4);
+                color:#ffdddd;padding:8px 10px;border-radius:8px;margin-bottom:12px;
+                font-size:13px;">
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <form method="post">
+    <label for="password" style="font-size:13px;display:block;margin-bottom:4px;">
+      Password
+    </label>
+    <input id="password" name="password" type="password"
+           style="width:100%;padding:9px 10px;border-radius:8px;border:none;
+                  margin-bottom:14px;background:rgba(255,255,255,0.06);
+                  color:#fff;">
+
+    <button type="submit" class="btn primary" style="width:100%;margin-top:4px;">
+      Entra
+    </button>
+  </form>
+</div>
+{% endblock %}
