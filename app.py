@@ -1,132 +1,198 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, abort
-from werkzeug.utils import secure_filename
+import json
+from functools import wraps
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    session,
+    abort,
+)
 
+# -------------------------------------------------
+# CONFIGURAZIONE DI BASE
+# -------------------------------------------------
 app = Flask(__name__)
 
-# ---------------------------------------------------------
-# CONFIGURAZIONE STORAGE FILE
-# ---------------------------------------------------------
-UPLOAD_FOLDER = os.path.join("static", "uploads")
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+# chiave per la sessione (puoi cambiarla)
+app.secret_key = os.environ.get("SECRET_KEY", "pay4you-secret")
 
-# =========================================================
-# DATABASE SEMPLICE (MEMORIA) – SOSTITUIBILE CON FIREBASE
-# =========================================================
-AGENTS = {}
+# file dove salviamo gli agenti (in JSON)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "static", "uploads")
+AGENTS_FILE = os.path.join(DATA_DIR, "agents.json")
 
-def get_agent(agent_id):
-    return AGENTS.get(agent_id)
+os.makedirs(DATA_DIR, exist_ok=True)
 
-# =========================================================
-# PAGINA LOGIN ADMIN
-# =========================================================
+
+# -------------------------------------------------
+# FUNZIONI DI SUPPORTO
+# -------------------------------------------------
+def load_agents():
+    """Legge la lista agenti dal file JSON."""
+    if not os.path.exists(AGENTS_FILE):
+        return []
+    try:
+        with open(AGENTS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+
+def save_agents(agents):
+    """Salva la lista agenti nel file JSON."""
+    with open(AGENTS_FILE, "w", encoding="utf-8") as f:
+        json.dump(agents, f, ensure_ascii=False, indent=2)
+
+
+def require_admin(view_func):
+    """Decorator per proteggere le pagine admin."""
+    @wraps(view_func)
+    def wrapper(*args, **kwargs):
+        if not session.get("is_admin"):
+            return redirect(url_for("login"))
+        return view_func(*args, **kwargs)
+    return wrapper
+
+
+# -------------------------------------------------
+# ROUTE PUBBLICHE
+# -------------------------------------------------
+@app.route("/")
+def index():
+    # home = redirect verso login oppure in futuro verso la card pubblica
+    return redirect(url_for("login"))
+
+
+@app.route("/card/<int:agent_id>")
+def public_card(agent_id):
+    """Mostra la card pubblica dell'agente."""
+    agents = load_agents()
+    if agent_id < 0 or agent_id >= len(agents):
+        abort(404)
+    agent = agents[agent_id]
+    return render_template("card.html", agent=agent, agent_id=agent_id)
+
+
+# -------------------------------------------------
+# LOGIN SEMPLICE PER ADMIN
+# -------------------------------------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    """
+    Login molto semplice.
+    Password presa da variabile di ambiente ADMIN_PASSWORD
+    oppure 'test' come default.
+    """
+    error = None
     if request.method == "POST":
-        password = request.form.get("password")
-        if password == "test":  # ← CAMBIA PASSWORD QUI
-            return redirect("/admin")
-        return render_template("login.html", error="Password errata")
-    return render_template("login.html")
+        password = request.form.get("password", "")
+        real_password = os.environ.get("ADMIN_PASSWORD", "test")
+        if password == real_password:
+            session["is_admin"] = True
+            return redirect(url_for("admin_list"))
+        else:
+            error = "Password errata"
 
-# =========================================================
-# DASHBOARD ADMIN
-# =========================================================
-@app.route("/admin")
-def admin_home():
-    return render_template("admin_list.html", agents=AGENTS)
+    return render_template("login.html", error=error)
 
-# =========================================================
-# AGGIUNGI / MODIFICA AGENTE
-# =========================================================
-@app.route("/admin/agent", methods=["GET", "POST"])
-def admin_agent_form():
-    agent_id = request.args.get("id")
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+
+# -------------------------------------------------
+# AREA ADMIN: ELENCO / NUOVO / MODIFICA
+# -------------------------------------------------
+@app.route("/admin/agents")
+@require_admin
+def admin_list():
+    """Elenco agenti (usa il template admin_list.html)."""
+    agents = load_agents()
+    return render_template("admin_list.html", agents=agents)
+
+
+@app.route("/admin/agents/new", methods=["GET", "POST"])
+@require_admin
+def admin_new_agent():
+    """Form per creare un nuovo agente (admin_agent_form.html)."""
     if request.method == "POST":
-        # --- lettura dati modulo ---
-        agent_id = request.form.get("agent_id").strip()
-        name = request.form.get("name")
-        phone = request.form.get("phone")
-        email = request.form.get("email")
-        whatsapp = request.form.get("whatsapp")
-        facebook = request.form.get("facebook")
-        instagram = request.form.get("instagram")
-        website = request.form.get("website")
-        pdf1 = request.form.get("pdf1")
-        pdf2 = request.form.get("pdf2")
-        pdf3 = request.form.get("pdf3")
-        pdf4 = request.form.get("pdf4")
+        name = request.form.get("name", "").strip()
+        phone = request.form.get("phone", "").strip()
+        email = request.form.get("email", "").strip()
+        company = request.form.get("company", "").strip()
+        role = request.form.get("role", "").strip()
+        photo = request.form.get("photo", "").strip()  # per ora solo URL
 
-        # ------------------------------
-        # FOTO
-        # ------------------------------
-        photo_file = request.files.get("photo")
-        photo_filename = None
+        agents = load_agents()
+        agents.append(
+            {
+                "name": name,
+                "phone": phone,
+                "email": email,
+                "company": company,
+                "role": role,
+                "photo": photo,
+            }
+        )
+        save_agents(agents)
+        return redirect(url_for("admin_list"))
 
-        if photo_file and photo_file.filename != "":
-            photo_filename = secure_filename(photo_file.filename)
-            photo_path = os.path.join(app.config["UPLOAD_FOLDER"], photo_filename)
-            photo_file.save(photo_path)
+    # GET: mostra il form vuoto
+    return render_template("admin_agent_form.html", agent=None)
 
-        # ------------------------------
-        # SALVATAGGIO AGENTE
-        # ------------------------------
-        AGENTS[agent_id] = {
-            "id": agent_id,
-            "name": name,
-            "phone": phone,
-            "email": email,
-            "whatsapp": whatsapp,
-            "facebook": facebook,
-            "instagram": instagram,
-            "website": website,
-            "pdf1": pdf1,
-            "pdf2": pdf2,
-            "pdf3": pdf3,
-            "pdf4": pdf4,
-            "photo": photo_filename,
-        }
 
-        return redirect("/admin")
-
-    # SE È MODIFICA, PRERCHÈ HO ID
-    agent_data = None
-    if agent_id:
-        agent_data = get_agent(agent_id)
-        if not agent_data:
-            abort(404)
-
-    return render_template("admin_agent_form.html", agent=agent_data)
-
-# =========================================================
-# PAGINA CARD /biglietto da visita
-# =========================================================
-@app.route("/card/<agent_id>")
-def card_page(agent_id):
-    agent = get_agent(agent_id)
-    if not agent:
+@app.route("/admin/agents/<int:agent_id>/edit", methods=["GET", "POST"])
+@require_admin
+def admin_edit_agent(agent_id):
+    """Modifica di un agente esistente."""
+    agents = load_agents()
+    if agent_id < 0 or agent_id >= len(agents):
         abort(404)
-    return render_template("card.html", agent=agent)
 
-# =========================================================
-# HOME → REDIRECT A LOGIN
-# =========================================================
-@app.route("/")
-def home():
-    return redirect("/login")
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        phone = request.form.get("phone", "").strip()
+        email = request.form.get("email", "").strip()
+        company = request.form.get("company", "").strip()
+        role = request.form.get("role", "").strip()
+        photo = request.form.get("photo", "").strip()
 
-# =========================================================
-# PAGINA 404 PERSONALIZZATA
-# =========================================================
+        agents[agent_id].update(
+            {
+                "name": name,
+                "phone": phone,
+                "email": email,
+                "company": company,
+                "role": role,
+                "photo": photo,
+            }
+        )
+        save_agents(agents)
+        return redirect(url_for("admin_list"))
+
+    # GET: mostra il form precompilato
+    agent = agents[agent_id]
+    return render_template("admin_agent_form.html", agent=agent, agent_id=agent_id)
+
+
+# -------------------------------------------------
+# ERROR HANDLER 404
+# -------------------------------------------------
 @app.errorhandler(404)
-def page_not_found(error):
+def page_not_found(e):
     return render_template("404.html"), 404
 
-# =========================================================
-# AVVIO SERVER (PER RENDER)
-# =========================================================
+
+# -------------------------------------------------
+# AVVIO LOCALE (su Render gira con gunicorn app:app)
+# -------------------------------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
+
+Inviato da iPhone
