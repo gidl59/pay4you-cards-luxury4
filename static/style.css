@@ -1,118 +1,239 @@
-
 body {
-    background: #111;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    margin: 0;
-    padding: 20px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #050816;
+  color: #fff;
 }
 
-.card-container {
-    display: flex;
-    justify-content: center;
+/* top bar */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #000;
+  border-bottom: 1px solid #222;
 }
 
-.luxury-card {
-    width: 92%;
-    max-width: 420px;
-    padding: 30px 20px;
-    border-radius: 22px;
-    position: relative;
-    overflow: hidden;
-
-    background: linear-gradient(135deg, #3b3b3b, #1a1a1a);
-    border: 2px solid rgba(255, 215, 0, 0.4);
+.top-logo img {
+  height: 26px;
 }
 
-/* 🌟 Effetto oro animato */
-.gold-glow {
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    top: -50%;
-    left: -50%;
-    background: radial-gradient(circle, rgba(255,223,0,0.25), transparent 70%);
-    animation: glow 4s infinite ease-in-out;
+.top-title {
+  font-size: 16px;
 }
 
-@keyframes glow {
-    0% { transform: scale(1) translateX(0); }
-    50% { transform: scale(1.1) translateX(20px); }
-    100% { transform: scale(1) translateX(0); }
+.top-login-link {
+  color: #ffd54f;
+  text-decoration: none;
 }
 
-.apple-icon {
-    width: 42px;
-    opacity: 0.8;
-    margin-bottom: 10px;
+/* card */
+.card-main {
+  padding: 16px;
 }
 
-.photo-wrapper {
-    width: 150px;
-    height: 150px;
-    margin: 0 auto;
-    border-radius: 80px;
-    overflow: hidden;
-    border: 3px solid gold;
+.business-card {
+  background: radial-gradient(circle at top, #243b6b, #050816);
+  border-radius: 18px;
+  padding: 24px 16px 20px;
+  text-align: center;
+  margin-bottom: 18px;
 }
 
-.agent-photo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.card-profile-photo-wrapper {
+  margin-top: -40px;
+  margin-bottom: 8px;
+}
+
+.card-profile-photo {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ffd54f;
+  background: #111;
+}
+
+.card-profile-placeholder {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px dashed #ffd54f;
+  font-size: 13px;
+}
+
+.card-name {
+  font-size: 20px;
+  margin: 8px 0 4px;
+}
+
+.card-title-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #00bcd4;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.card-role-main {
+  font-size: 14px;
+}
+
+.card-role-sub {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+/* sezioni */
+.card-section {
+  margin-top: 18px;
+}
+
+.card-section h2 {
+  font-size: 15px;
+  color: #ffd54f;
+  margin-bottom: 8px;
+}
+
+/* contatti */
+.contact-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border-radius: 10px;
+  background: #101522;
+  text-decoration: none;
+  color: inherit;
+}
+
+.contact-row .icon {
+  margin-right: 8px;
+}
+
+.contact-row .label {
+  flex: 1;
+  font-size: 14px;
+}
+
+.contact-row .value {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+/* indirizzi */
+.address-row {
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  border-radius: 10px;
+  background: #101522;
+}
+
+.address-label {
+  font-size: 13px;
+  color: #ffd54f;
+}
+
+.address-value {
+  font-size: 13px;
+}
+
+/* pdf */
+.pdf-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pdf-item {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #101522;
+  text-decoration: none;
+  color: #fff;
+  font-size: 13px;
+}
+
+/* galleria */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.gallery-grid img {
+  width: 100%;
+  border-radius: 10px;
+  height: 80px;
+  object-fit: cover;
+}
+
+/* elenco agenti */
+.agents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 0 20px;
+}
+
+.agent-item {
+  background: #101522;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.agent-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.agent-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  object-fit: cover;
 }
 
 .agent-name {
-    text-align: center;
-    color: gold;
-    margin-top: 15px;
-    font-size: 26px;
+  font-size: 15px;
 }
 
-.info-line {
-    text-align: center;
-    color: white;
-    margin: 4px 0;
+.agent-role,
+.agent-city {
+  font-size: 12px;
+  opacity: 0.8;
 }
 
-.site-link {
-    display: block;
-    text-align: center;
-    color: gold;
-    margin: 10px 0;
-}
-
-.button-row {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 15px;
-}
-
-.btn-save, .btn-back {
-    padding: 10px 15px;
-    border: 1px solid gold;
-    border-radius: 12px;
-    color: gold;
-    text-decoration: none;
-}
-
-.qr-wrapper {
-    margin-top: 25px;
-    text-align: center;
-}
-
-.qr-img {
-    width: 130px;
-}
-/* --- Logo Pay4You in alto --- */
-.logo-wrapper {
+.agent-actions {
+  margin-top: 8px;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 16px 0 8px;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.logo {
-  max-width: 160px;   /* dimensione massima logo */
-  width: 50%;         /* occupa metà della larghezza dello schermo */
-  height: auto;
+.btn {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: #00bcd4;
+  color: #000;
+}
+
+.btn-secondary {
+  background: #ffd54f;
+  color: #000;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #ffd54f;
+  color: #ffd54f;
 }
