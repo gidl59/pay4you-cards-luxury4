@@ -1,7 +1,9 @@
 import os
 import json
+import io
 from functools import wraps
 
+import qrcode
 from flask import (
     Flask,
     render_template,
@@ -11,6 +13,7 @@ from flask import (
     url_for,
     session,
     flash,
+    send_file,
 )
 
 app = Flask(__name__)
@@ -44,11 +47,11 @@ def save_agents(agents):
         json.dump(agents, f, ensure_ascii=False, indent=2)
 
 
-# in memoria teniamo la copia più recente
 AGENTS = load_agents()
 
 
 def refresh_agents():
+    """Ricarica la lista agenti in memoria."""
     global AGENTS
     AGENTS = load_agents()
 
@@ -79,7 +82,7 @@ def login_required(view_func):
 # -------------------------
 @app.route("/")
 def index():
-    """Elenco pubblico degli agenti."""
+    """Elenco pubblico degli agenti (lista card)."""
     return render_template("index.html", agents=AGENTS)
 
 
@@ -90,6 +93,24 @@ def card(slug):
     if not agent:
         abort(404)
     return render_template("card.html", agent=agent)
+
+
+@app.route("/qr/<slug>.png")
+def qr_code(slug):
+    """Genera al volo il QR code per la card dell'agente."""
+    agent = get_agent_by_slug(slug)
+    if not agent:
+        abort(404)
+
+    # URL completo della card (es: https://pay4you-cards-luxury4.onrender.com/card/giuseppe)
+    card_url = url_for("card", slug=slug, _external=True)
+
+    img = qrcode.make(card_url)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+
+    return send_file(buf, mimetype="image/png")
 
 
 @app.route("/health")
@@ -103,14 +124,12 @@ def health():
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
     """
-    Login molto semplice:
-    password fissa: test
-    (puoi cambiarla QUI sotto).
+    Login semplice con password fissa.
+    Password attuale: test  (puoi cambiarla qui sotto).
     """
     if request.method == "POST":
         password = request.form.get("password", "").strip()
-        # CAMBIA QUI se vuoi un'altra password
-        if password == "test":
+        if password == "test":  # <--- CAMBIA QUI LA PASSWORD
             session["admin_logged_in"] = True
             flash("Login effettuato", "success")
             next_url = request.args.get("next") or url_for("admin_agents")
@@ -171,7 +190,7 @@ def admin_new_agent():
             "foto_profilo": request.form.get("foto_profilo", "").strip(),
             "foto_cover": request.form.get("foto_cover", "").strip(),
             "vcard_file": request.form.get("vcard_file", "").strip(),
-            "qr_code_file": request.form.get("qr_code_file", "").strip(),
+            # il QR ora è generato al volo, non serve salvare file path
         }
 
         agents = load_agents()
@@ -213,7 +232,6 @@ def admin_edit_agent(slug):
                 a["foto_profilo"] = request.form.get("foto_profilo", "").strip()
                 a["foto_cover"] = request.form.get("foto_cover", "").strip()
                 a["vcard_file"] = request.form.get("vcard_file", "").strip()
-                a["qr_code_file"] = request.form.get("qr_code_file", "").strip()
                 break
 
         save_agents(agents)
