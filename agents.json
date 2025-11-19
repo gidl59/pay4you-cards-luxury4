@@ -19,10 +19,9 @@
 
     "whatsapp": "+39 392 7777778",
 
-    "foto_profilo": "img/giuseppe-profilo.jpg",
-    "foto_cover": "img/giuseppe-cover.jpg",
-
-    "vcard_file": "vcf/giuseppe.vcf",
+    "foto_profilo": "",
+    "foto_cover": "",
+    "vcard_file": "",
 
     "galleria": [],
     "pdfs": []
