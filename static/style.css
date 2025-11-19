@@ -1,280 +1,105 @@
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+.admin-body {
   background: #050816;
-  color: #ffffff;
+  color: #fff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-/* top bar */
-.top-bar {
+.admin-top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 8px 14px;
-  background: #000000;
+  padding: 10px 14px;
+  background: #000;
   border-bottom: 1px solid #222;
 }
 
-.top-logo img {
+.admin-logo img {
   height: 28px;
 }
 
-.top-title {
-  font-size: 14px;
-  text-align: center;
-  line-height: 1.1;
-}
-
-.top-subtitle {
-  font-size: 10px;
-  opacity: 0.7;
-}
-
-.top-link {
-  font-size: 12px;
-  color: #ffd54f;
-  text-decoration: none;
-}
-
-.page-main {
-  padding: 12px 10px 20px;
-}
-
-/* elenco agenti */
-.container {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.page-title {
-  font-size: 20px;
-  margin-bottom: 10px;
-}
-
-.agents-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.agent-item {
-  background: #101522;
-  border-radius: 12px;
-  padding: 10px;
-}
-
-.agent-main {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.agent-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 999px;
-  object-fit: cover;
-  background: #000;
-}
-
-.agent-avatar.placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffd54f;
-  font-weight: bold;
-}
-
-.agent-name {
+.admin-title {
   font-size: 15px;
 }
 
-.agent-role,
-.agent-city {
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-.agent-actions {
-  margin-top: 8px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.btn {
-  font-size: 12px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: none;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.btn-primary {
-  background: #00bcd4;
-  color: #000;
-}
-
-.btn-secondary {
-  background: #ffd54f;
-  color: #000;
-}
-
-.btn-outline {
-  background: transparent;
-  border: 1px solid #ffd54f;
+.admin-links a {
   color: #ffd54f;
+  font-size: 12px;
+  margin-left: 10px;
+  text-decoration: none;
 }
 
-/* card */
-.business-card {
-  background: radial-gradient(circle at top, #243b6b, #050816);
-  border-radius: 18px;
-  padding: 24px 16px 20px;
-  text-align: center;
-  margin-bottom: 18px;
+.admin-main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 14px;
 }
 
-.card-cover img {
+.admin-card {
+  background: #101522;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.admin-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.agents-table {
   width: 100%;
-  border-radius: 16px;
-  max-height: 140px;
-  object-fit: cover;
-}
-
-.card-profile-photo-wrapper {
-  margin-top: -36px;
-  margin-bottom: 8px;
-}
-
-.card-profile-photo {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #ffd54f;
-  background: #111;
-}
-
-.card-profile-placeholder {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px dashed #ffd54f;
+  border-collapse: collapse;
   font-size: 13px;
 }
 
-.card-name {
-  font-size: 20px;
-  margin: 8px 0 4px;
+.agents-table th,
+.agents-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #222;
 }
 
-.card-title-badge {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 999px;
-  background: #00bcd4;
+.agents-actions .btn {
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.form-grid label {
+  font-size: 12px;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.form-grid input {
+  width: 100%;
+  padding: 5px 6px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #050816;
+  color: #fff;
+}
+
+.flash-container {
+  margin-bottom: 10px;
+}
+
+.flash {
+  padding: 6px 8px;
+  border-radius: 8px;
   font-size: 12px;
   margin-bottom: 4px;
 }
 
-.card-role-main {
-  font-size: 14px;
+.flash-success {
+  background: #1b5e20;
 }
 
-.card-role-sub {
-  font-size: 13px;
-  opacity: 0.8;
-}
-
-/* sezioni */
-.card-section {
-  margin-top: 18px;
-}
-
-.card-section h2 {
-  font-size: 15px;
-  color: #ffd54f;
-  margin-bottom: 8px;
-}
-
-/* contatti */
-.contact-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  margin-bottom: 6px;
-  border-radius: 10px;
-  background: #101522;
-  text-decoration: none;
-  color: inherit;
-}
-
-.contact-row .icon {
-  margin-right: 8px;
-}
-
-.contact-row .label {
-  flex: 1;
-  font-size: 14px;
-}
-
-.contact-row .value {
-  font-size: 13px;
-  opacity: 0.8;
-}
-
-/* indirizzi */
-.address-row {
-  padding: 8px 12px;
-  margin-bottom: 6px;
-  border-radius: 10px;
-  background: #101522;
-}
-
-.address-label {
-  font-size: 13px;
-  color: #ffd54f;
-}
-
-.address-value {
-  font-size: 13px;
-}
-
-/* pdf */
-.pdf-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.pdf-item {
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: #101522;
-  text-decoration: none;
-  color: #fff;
-  font-size: 13px;
-}
-
-/* galleria */
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-}
-
-.gallery-grid img {
-  width: 100%;
-  border-radius: 10px;
-  height: 80px;
-  object-fit: cover;
-}
-
-.card-page {
-  max-width: 600px;
-  margin: 0 auto;
+.flash-error {
+  background: #b71c1c;
 }
