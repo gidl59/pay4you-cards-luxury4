@@ -22,31 +22,9 @@
     "foto_profilo": "img/giuseppe-profilo.jpg",
     "foto_cover": "img/giuseppe-cover.jpg",
 
-    "galleria": [
-      "img/gallery/giuseppe-1.jpg",
-      "img/gallery/giuseppe-2.jpg",
-      "img/gallery/giuseppe-3.jpg"
-    ],
+    "vcard_file": "vcf/giuseppe.vcf",
 
-    "pdfs": [
-      {
-        "label": "Presentazione Pay4You",
-        "file": "pdf/giuseppe-presentazione.pdf"
-      },
-      {
-        "label": "Listino Buffetti Finance",
-        "file": "pdf/giuseppe-listino.pdf"
-      },
-      {
-        "label": "Contratto standard",
-        "file": "pdf/giuseppe-contratto.pdf"
-      },
-      {
-        "label": "Scheda tecnica POS",
-        "file": "pdf/giuseppe-scheda-tecnica.pdf"
-      }
-    ],
-
-    "vcard_file": "vcf/giuseppe.vcf"
+    "galleria": [],
+    "pdfs": []
   }
 ]
