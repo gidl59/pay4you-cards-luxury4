@@ -1,1 +1,13 @@
+{% extends "admin_base.html" %}
 
+{% block content %}
+<div class="admin-card">
+  <h2>Login amministratore</h2>
+  <form method="post">
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required>
+
+    <button type="submit" class="btn btn-primary">Entra</button>
+  </form>
+</div>
+{% endblock %}
