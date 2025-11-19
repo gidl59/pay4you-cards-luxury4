@@ -3,6 +3,15 @@
 {% block content %}
 <div class="card-page">
 
+  <!-- LOGO GRANDE A SINISTRA -->
+  <div>
+    <img
+      src="{{ url_for('static', filename='img/logo-pay4you.png') }}"
+      alt="Pay4You"
+      style="height: 100px; display: block; margin-bottom: 14px;"
+    >
+  </div>
+
   <section class="business-card">
     {% if agent.foto_cover %}
     <div class="card-cover">
@@ -128,7 +137,7 @@
   </section>
   {% endif %}
 
-  <!-- PDF -->
+  <!-- PDF (se in futuro aggiungiamo agent.pdfs) -->
   {% if agent.pdfs %}
   <section class="card-section">
     <h2>Documenti</h2>
@@ -144,7 +153,7 @@
   </section>
   {% endif %}
 
-  <!-- GALLERIA FOTO -->
+  <!-- GALLERIA FOTO (se in futuro aggiungiamo agent.galleria) -->
   {% if agent.galleria %}
   <section class="card-section">
     <h2>Galleria foto</h2>
