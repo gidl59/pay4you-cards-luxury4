@@ -2,25 +2,25 @@
   {
     "slug": "giuseppe",
     "nome": "Giuseppe Di Lisio",
-    "titolo_breve": "Pay4you",
+    "titolo_breve": "Pay4You",
     "ruolo_principale": "Area Manager Centro Italia",
     "ruolo_secondario": "Responsabile agenti centro Italia",
 
-    "mobile": "+39XXXXXXXXXX",
-    "ufficio": "+39YYYYYYYYYY",
+    "mobile": "+39 392 7777778",
+    "ufficio": "0541 1646895",
     "email_personale": "giuseppedilisio16@gmail.com",
     "email_aziendale": "info@pay4you.store",
     "sito_web": "https://www.pay4you.store",
 
     "indirizzo_1_label": "Sede operativa",
-    "indirizzo_1": "Via Esempio 1, 86100 Campobasso (CB)",
-    "indirizzo_2_label": "Sede clienti Rimini",
-    "indirizzo_2": "Viale Roma 10, 47900 Rimini (RN)",
+    "indirizzo_1": "Via Ferrari 72, 86100 Campobasso (CB)",
+    "indirizzo_2_label": "Unità locale",
+    "indirizzo_2": "Via XXIII Settembre 1845 n.67, 47900 Rimini (RN)",
 
-    "whatsapp": "+39XXXXXXXXXX",
+    "whatsapp": "+39 392 7777778",
 
-    "foto_profilo": "img/agents/giuseppe-profilo.jpg",
-    "foto_cover": "img/agents/giuseppe-cover.jpg",
+    "foto_profilo": "img/giuseppe-profilo.jpg",
+    "foto_cover": "img/giuseppe-cover.jpg",
 
     "galleria": [
       "img/gallery/giuseppe-1.jpg",
