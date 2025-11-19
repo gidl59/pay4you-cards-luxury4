@@ -1,1 +1,63 @@
+{% extends "admin_base.html" %}
 
+{% block content %}
+<div class="admin-card">
+  <div class="admin-header-row">
+    <h2>Agenti</h2>
+    <a href="{{ url_for('admin_new_agent') }}" class="btn btn-primary">
+      + Nuovo agente
+    </a>
+  </div>
+
+  {% if agents %}
+  <table class="agents-table">
+    <thead>
+      <tr>
+        <th>Slug</th>
+        <th>Nome</th>
+        <th>Ruolo</th>
+        <th>Mobile</th>
+        <th>Azioni</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in agents %}
+      <tr>
+        <td>{{ a.slug }}</td>
+        <td>{{ a.nome }}</td>
+        <td>{{ a.ruolo_principale }}</td>
+        <td>{{ a.mobile }}</td>
+        <td class="agents-actions">
+          <a class="btn btn-small"
+             href="{{ url_for('card', slug=a.slug) }}"
+             target="_blank">
+            Card
+          </a>
+          <a class="btn btn-small btn-secondary"
+             href="{{ url_for('admin_edit_agent', slug=a.slug) }}">
+            Modifica
+          </a>
+          {% if a.vcard_file %}
+          <a class="btn btn-small"
+             href="{{ url_for('static', filename=a.vcard_file) }}"
+             target="_blank">
+            VCF
+          </a>
+          {% endif %}
+          {% if a.qr_code_file %}
+          <a class="btn btn-small"
+             href="{{ url_for('static', filename=a.qr_code_file) }}"
+             target="_blank">
+            QR
+          </a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Nessun agente ancora inserito.</p>
+  {% endif %}
+</div>
+{% endblock %}
