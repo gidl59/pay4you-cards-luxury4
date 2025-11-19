@@ -1,1 +1,48 @@
+{% extends "base.html" %}
 
+{% block content %}
+<div class="container">
+  <h2 class="page-title">Pay4You Cards</h2>
+
+  <div class="agents-list">
+    {% for a in agents %}
+    <div class="agent-item">
+      <div class="agent-main">
+        <img src="{{ url_for('static', filename=a.foto_profilo) }}"
+             alt="{{ a.nome }}"
+             class="agent-avatar">
+
+        <div class="agent-text">
+          <div class="agent-name">{{ a.nome }}</div>
+          <div class="agent-role">{{ a.ruolo_principale }}</div>
+          <div class="agent-city">{{ a.ruolo_secondario }}</div>
+        </div>
+      </div>
+
+      <div class="agent-actions">
+        <a class="btn btn-primary" href="{{ url_for('card', slug=a.slug) }}">
+          Apri card
+        </a>
+
+        <!-- VCF -->
+        {% if a.vcard_file %}
+        <a class="btn btn-secondary"
+           href="{{ url_for('static', filename=a.vcard_file) }}">
+          Salva contatto (VCF)
+        </a>
+        {% endif %}
+
+        <!-- QR: qui metti il percorso immagine del QR, se lo hai -->
+        {% if a.qr_code_file %}
+        <a class="btn btn-outline"
+           href="{{ url_for('static', filename=a.qr_code_file) }}"
+           target="_blank">
+          Vedi QR
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
