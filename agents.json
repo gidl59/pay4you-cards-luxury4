@@ -1,1 +1,52 @@
+[
+  {
+    "slug": "giuseppe",
+    "nome": "Giuseppe Di Lisio",
+    "titolo_breve": "Pay4you",
+    "ruolo_principale": "Area Manager Centro Italia",
+    "ruolo_secondario": "Responsabile agenti centro Italia",
 
+    "mobile": "+39XXXXXXXXXX",
+    "ufficio": "+39YYYYYYYYYY",
+    "email_personale": "giuseppedilisio16@gmail.com",
+    "email_aziendale": "info@pay4you.store",
+    "sito_web": "https://www.pay4you.store",
+
+    "indirizzo_1_label": "Sede operativa",
+    "indirizzo_1": "Via Esempio 1, 86100 Campobasso (CB)",
+    "indirizzo_2_label": "Sede clienti Rimini",
+    "indirizzo_2": "Viale Roma 10, 47900 Rimini (RN)",
+
+    "whatsapp": "+39XXXXXXXXXX",
+
+    "foto_profilo": "img/agents/giuseppe-profilo.jpg",
+    "foto_cover": "img/agents/giuseppe-cover.jpg",
+
+    "galleria": [
+      "img/gallery/giuseppe-1.jpg",
+      "img/gallery/giuseppe-2.jpg",
+      "img/gallery/giuseppe-3.jpg"
+    ],
+
+    "pdfs": [
+      {
+        "label": "Presentazione Pay4You",
+        "file": "pdf/giuseppe-presentazione.pdf"
+      },
+      {
+        "label": "Listino Buffetti Finance",
+        "file": "pdf/giuseppe-listino.pdf"
+      },
+      {
+        "label": "Contratto standard",
+        "file": "pdf/giuseppe-contratto.pdf"
+      },
+      {
+        "label": "Scheda tecnica POS",
+        "file": "pdf/giuseppe-scheda-tecnica.pdf"
+      }
+    ],
+
+    "vcard_file": "vcf/giuseppe.vcf"
+  }
+]
