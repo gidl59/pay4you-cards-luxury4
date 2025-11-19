@@ -2,29 +2,37 @@
 
 {% block content %}
 <div class="container">
-  <h2 class="page-title">Pay4You Cards</h2>
+  <h1 class="page-title">Agenti Pay4You</h1>
 
   <div class="agents-list">
     {% for a in agents %}
     <div class="agent-item">
       <div class="agent-main">
+        {% if a.foto_profilo %}
         <img src="{{ url_for('static', filename=a.foto_profilo) }}"
              alt="{{ a.nome }}"
              class="agent-avatar">
+        {% else %}
+        <div class="agent-avatar placeholder">P4Y</div>
+        {% endif %}
 
         <div class="agent-text">
           <div class="agent-name">{{ a.nome }}</div>
+          {% if a.ruolo_principale %}
           <div class="agent-role">{{ a.ruolo_principale }}</div>
+          {% endif %}
+          {% if a.ruolo_secondario %}
           <div class="agent-city">{{ a.ruolo_secondario }}</div>
+          {% endif %}
         </div>
       </div>
 
       <div class="agent-actions">
-        <a class="btn btn-primary" href="{{ url_for('card', slug=a.slug) }}">
+        <a class="btn btn-primary"
+           href="{{ url_for('card', slug=a.slug) }}">
           Apri card
         </a>
 
-        <!-- VCF -->
         {% if a.vcard_file %}
         <a class="btn btn-secondary"
            href="{{ url_for('static', filename=a.vcard_file) }}">
@@ -32,7 +40,6 @@
         </a>
         {% endif %}
 
-        <!-- QR: qui metti il percorso immagine del QR, se lo hai -->
         {% if a.qr_code_file %}
         <a class="btn btn-outline"
            href="{{ url_for('static', filename=a.qr_code_file) }}"
