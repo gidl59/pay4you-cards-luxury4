@@ -10,7 +10,7 @@ from flask import (
     abort,
     request,
     redirect,
-    url_for,
+n    url_for,
     session,
     flash,
     send_file,
@@ -18,7 +18,7 @@ from flask import (
 
 app = Flask(__name__)
 
-# Chiave di sessione per login admin
+# Chiave di sessione per login admin (puoi cambiarla)
 app.secret_key = os.environ.get("SECRET_KEY", "cambia-questa-chiave-super-segreta")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -51,12 +51,13 @@ AGENTS = load_agents()
 
 
 def refresh_agents():
-    """Ricarica la lista agenti in memoria."""
+    """Ricarica la lista agenti in memoria dopo una modifica."""
     global AGENTS
     AGENTS = load_agents()
 
 
 def get_agent_by_slug(slug):
+    """Ritorna l'agente con quello slug o None."""
     for a in AGENTS:
         if a.get("slug") == slug:
             return a
@@ -102,14 +103,11 @@ def qr_code(slug):
     if not agent:
         abort(404)
 
-    # URL completo della card (es: https://pay4you-cards-luxury4.onrender.com/card/giuseppe)
     card_url = url_for("card", slug=slug, _external=True)
-
     img = qrcode.make(card_url)
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     buf.seek(0)
-
     return send_file(buf, mimetype="image/png")
 
 
@@ -125,7 +123,7 @@ def health():
 def admin_login():
     """
     Login semplice con password fissa.
-    Password attuale: test  (puoi cambiarla qui sotto).
+    Password attuale: test  (cambiala qui sotto se vuoi).
     """
     if request.method == "POST":
         password = request.form.get("password", "").strip()
@@ -190,7 +188,7 @@ def admin_new_agent():
             "foto_profilo": request.form.get("foto_profilo", "").strip(),
             "foto_cover": request.form.get("foto_cover", "").strip(),
             "vcard_file": request.form.get("vcard_file", "").strip(),
-            # il QR ora è generato al volo, non serve salvare file path
+            # galleria e pdfs li puoi aggiungere in futuro
         }
 
         agents = load_agents()
