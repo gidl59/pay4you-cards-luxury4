@@ -2,115 +2,67 @@
 
 {% block content %}
 <div class="admin-card">
-  <h2>
-    {% if agent %}Modifica agente{% else %}Nuovo agente{% endif %}
-  </h2>
+  <div class="admin-header-row">
+    <h2>Agenti</h2>
+    <a href="{{ url_for('admin_new_agent') }}" class="btn btn-primary">
+      + Nuovo agente
+    </a>
+  </div>
 
-  <form method="post">
-    <div class="form-grid">
-      <div>
-        <label>Slug (es. giuseppe, antonio)</label>
-        {% if agent %}
-          <input type="text" name="slug" value="{{ agent.slug }}" readonly>
-        {% else %}
-          <input type="text" name="slug" required>
-        {% endif %}
-      </div>
+  {% if agents %}
+  <table class="agents-table">
+    <thead>
+      <tr>
+        <th>Slug</th>
+        <th>Nome</th>
+        <th>Ruolo</th>
+        <th>Mobile</th>
+        <th>Azioni</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in agents %}
+      <tr>
+        <td>{{ a.slug }}</td>
+        <td>{{ a.nome }}</td>
+        <td>{{ a.ruolo_principale }}</td>
+        <td>{{ a.mobile }}</td>
+        <td class="agents-actions">
+          <!-- Card pubblica -->
+          <a class="btn btn-small"
+             href="{{ url_for('card', slug=a.slug) }}"
+             target="_blank">
+            Card
+          </a>
 
-      <div>
-        <label>Nome e cognome</label>
-        <input type="text" name="nome" value="{{ agent.nome or '' }}">
-      </div>
+          <!-- Modifica agente -->
+          <a class="btn btn-small btn-secondary"
+             href="{{ url_for('admin_edit_agent', slug=a.slug) }}">
+            Modifica
+          </a>
 
-      <div>
-        <label>Titolo breve</label>
-        <input type="text" name="titolo_breve" value="{{ agent.titolo_breve or '' }}">
-      </div>
+          <!-- vCard, se impostata -->
+          {% if a.vcard_file %}
+          <a class="btn btn-small"
+             href="{{ url_for('static', filename=a.vcard_file) }}"
+             target="_blank">
+            VCF
+          </a>
+          {% endif %}
 
-      <div>
-        <label>Ruolo principale</label>
-        <input type="text" name="ruolo_principale" value="{{ agent.ruolo_principale or '' }}">
-      </div>
-
-      <div>
-        <label>Ruolo secondario</label>
-        <input type="text" name="ruolo_secondario" value="{{ agent.ruolo_secondario or '' }}">
-      </div>
-
-      <div>
-        <label>Mobile</label>
-        <input type="text" name="mobile" value="{{ agent.mobile or '' }}">
-      </div>
-
-      <div>
-        <label>Telefono ufficio</label>
-        <input type="text" name="ufficio" value="{{ agent.ufficio or '' }}">
-      </div>
-
-      <div>
-        <label>Email personale</label>
-        <input type="email" name="email_personale" value="{{ agent.email_personale or '' }}">
-      </div>
-
-      <div>
-        <label>Email aziendale</label>
-        <input type="email" name="email_aziendale" value="{{ agent.email_aziendale or '' }}">
-      </div>
-
-      <div>
-        <label>Sito web</label>
-        <input type="text" name="sito_web" value="{{ agent.sito_web or '' }}">
-      </div>
-
-      <div>
-        <label>Etichetta indirizzo 1</label>
-        <input type="text" name="indirizzo_1_label" value="{{ agent.indirizzo_1_label or '' }}">
-      </div>
-
-      <div>
-        <label>Indirizzo 1</label>
-        <input type="text" name="indirizzo_1" value="{{ agent.indirizzo_1 or '' }}">
-      </div>
-
-      <div>
-        <label>Etichetta indirizzo 2</label>
-        <input type="text" name="indirizzo_2_label" value="{{ agent.indirizzo_2_label or '' }}">
-      </div>
-
-      <div>
-        <label>Indirizzo 2</label>
-        <input type="text" name="indirizzo_2" value="{{ agent.indirizzo_2 or '' }}">
-      </div>
-
-      <div>
-        <label>WhatsApp</label>
-        <input type="text" name="whatsapp" value="{{ agent.whatsapp or '' }}">
-      </div>
-
-      <div>
-        <label>Foto profilo (es. img/giuseppe-profilo.jpg)</label>
-        <input type="text" name="foto_profilo" value="{{ agent.foto_profilo or '' }}">
-      </div>
-
-      <div>
-        <label>Foto cover</label>
-        <input type="text" name="foto_cover" value="{{ agent.foto_cover or '' }}">
-      </div>
-
-      <div>
-        <label>File VCF (es. vcf/giuseppe.vcf)</label>
-        <input type="text" name="vcard_file" value="{{ agent.vcard_file or '' }}">
-      </div>
-
-      <div>
-        <label>File QR (es. qr/giuseppe.png)</label>
-        <input type="text" name="qr_code_file" value="{{ agent.qr_code_file or '' }}">
-      </div>
-    </div>
-
-    <button type="submit" class="btn btn-primary">
-      Salva
-    </button>
-  </form>
+          <!-- QR generato al volo -->
+          <a class="btn btn-small"
+             href="{{ url_for('qr_code', slug=a.slug) }}"
+             target="_blank">
+            QR
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Nessun agente ancora inserito.</p>
+  {% endif %}
 </div>
 {% endblock %}
