@@ -1,1 +1,41 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8">
+    <title>Admin Pay4You</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body class="admin-body">
+    <header class="admin-top-bar">
+      <div class="admin-logo">
+        <img src="{{ url_for('static', filename='img/logo-pay4you.png') }}"
+             alt="Pay4You">
+      </div>
+      <div class="admin-title">
+        Pannello Agenti Pay4You
+      </div>
+      <div class="admin-links">
+        <a href="{{ url_for('index') }}">Vai alle card</a>
+        {% if session.get('admin_logged_in') %}
+          <a href="{{ url_for('admin_logout') }}">Logout</a>
+        {% endif %}
+      </div>
+    </header>
 
+    <main class="admin-main">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-container">
+            {% for category, msg in messages %}
+            <div class="flash flash-{{ category }}">{{ msg }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>
